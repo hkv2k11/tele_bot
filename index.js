@@ -20,7 +20,7 @@ function createAsciiTable(data) {
     Math.max(...data.map(row => String(row[colIndex]).length))
   );
 
-  const separator = '+' + columnWidths.map(width => '-'.repeat(width + 2)).join('+') + '+';
+  const separator = '\\+' + columnWidths.map(width => '-'.repeat(width + 2)).join('\\+') + '\\+';
 
   const formatRow = (row) =>
     '| ' +
