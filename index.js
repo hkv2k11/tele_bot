@@ -13,14 +13,13 @@ let previousData = {
   db2: null,
   db3: null, // Điều chỉnh cho phù hợp với các bảng dữ liệu
 };
-
 // Hàm để tạo bảng ASCII với các đường viền
 function createAsciiTable(data) {
   const columnWidths = data[0].map((_, colIndex) =>
     Math.max(...data.map(row => String(row[colIndex]).length))
   );
 
-  const separator = '\\+' + columnWidths.map(width => '-'.repeat(width + 2).replace(/-/g, '\\-')).join('\\+') + '\\+';
+  const separator = '+' + columnWidths.map(width => '-'.repeat(width + 2)).join('+') + '+';
 
   const formatRow = (row) =>
     '| ' +
