@@ -20,6 +20,7 @@ function createAsciiTable(data) {
     Math.max(...data.map(row => String(row[colIndex]).length))
   );
 
+  // Cập nhật cách tạo separator để có định dạng mới
   const separator = '+' + columnWidths.map(width => '-'.repeat(width + 2)).join('+') + '+';
 
   const formatRow = (row) =>
