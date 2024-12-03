@@ -40,6 +40,12 @@ function createAsciiTable(data) {
 
 // Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
 function escapeMarkdownV2(text) {
+  // Bỏ tất cả dấu \ khỏi văn bản
+  return text.replace(/([`*_{}[\]()#+\-.!])/g, '$1');
+}
+
+// Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
+function escapeMarkdownV2(text) {
   return text.replace(/([`*_{}[\]()#+\-.!])/g, '\\$1');
 }
 
