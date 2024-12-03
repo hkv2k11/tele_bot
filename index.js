@@ -173,6 +173,8 @@ function generateASCII(data) {
       message += `\`\`\`\n${asciiTable}\n\`\`\`\n`;
     }
   });
+
+  return message; // Thêm dòng này hehe
 }
 
 // Kiểm tra và gửi thông báo nếu có dữ liệu mới
