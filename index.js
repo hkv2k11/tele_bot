@@ -11,7 +11,7 @@ const bot = new Telegraf(TELEGRAM_TOKEN);
 let previousData = {
   db1: null,
   db2: null,
-  db3: null,  // Chỉnh lại cho đúng, vì bạn đang sử dụng db1, db2, db3 trong phần so sánh
+  db3: null, // Chỉnh lại cho đúng, vì bạn đang sử dụng db1, db2, db3 trong phần so sánh
 };
 
 // Hàm tạo bảng ASCII có đường viền
@@ -125,22 +125,21 @@ function generateASCII(data) {
     if (data[tableKey] && data[tableKey].length > 0) {
       const tableName = `Bảng ${index + 1}`;
       let shop = ''; // Biến lưu tên shop
-  
+
       // Xác định tên shop theo bảng
       if (index === 1) {
         shop = "Khocloud 😺";
       } else if (index === 2) {
         shop = "Rbl247 🤓";
       }
-  
+
       // Thêm tiêu đề bảng
       message += `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
-  
+
       // Chuẩn bị dữ liệu cho bảng
-      const tableData = [];
       const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng', 'Serial', 'Nhà mạng'];
-      tableData.push(headers);
-  
+      const tableData = [headers];
+
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
         const rowData = tableKey === 'db1'
@@ -164,10 +163,10 @@ function generateASCII(data) {
               row.serial,
               row.telco,
             ];
-  
+
         tableData.push(rowData);
       });
-  
+
       // Tạo bảng ASCII
       const asciiTable = createAsciiTable(tableData);
       message += `\`\`\`\n${asciiTable}\n\`\`\`\n`;
