@@ -89,6 +89,7 @@ async function fetchData() {
   try {
     const response = await fetch('https://congnap.id.vn/api/');
     const data = await response.json();
+    console.log('Fetched data:', data);  // Log the fetched data
     return data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -100,6 +101,7 @@ async function fetchData() {
 function hasDataChanged(newData) {
   const keys = ['db1', 'db2', 'db3'];
   for (let key of keys) {
+    console.log(`Checking data for ${key}:`, newData[key], previousData[key]);  // Add this line to see the comparison
     if (JSON.stringify(newData[key]) !== JSON.stringify(previousData[key])) {
       previousData = newData; // Store the new data
       return true;
@@ -173,6 +175,7 @@ function generateASCII(data) {
     }
   });
 
+  console.log('Generated ASCII Message:', finalMessage); // Log the generated ASCII message
   return finalMessage; // Return the final message with all tables
 }
 
@@ -181,12 +184,17 @@ async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
     const asciiMessage = generateASCII(newData); // Generate ASCII tables with updated data
-    await bot.telegram.sendMessage(CHAT_ID, `\`\`\`\n${asciiMessage}\n\`\`\``, { parse_mode: 'MarkdownV2' } ); // Send the ASCII message
+    try {
+      await bot.telegram.sendMessage(CHAT_ID, `\`\`\`\n${asciiMessage}\n\`\`\``, { parse_mode: 'MarkdownV2' }); // Send the ASCII message
+      console.log('Message sent successfully!');  // Log success
+    } catch (error) {
+      console.error('Error sending message:', error);  // Log error if sending message fails
+    }
   }
 }
 
-// Set up checking every 30 seconds
-setInterval(checkForUpdates, 30000);
+// Set up checking every 3 seconds
+setInterval(checkForUpdates, 3000);
 
 // Launch the bot
 bot.launch();
