@@ -133,35 +133,46 @@ function generateASCII(data) {
         shop = "Rbl247 🤓";
       }
   
+      // Thêm tiêu đề bảng
       message += `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
+  
+      // Chuẩn bị dữ liệu cho bảng
+      const tableData = [];
+      const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng', 'Serial', 'Nhà mạng'];
+      tableData.push(headers);
   
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
+        const rowData = tableKey === 'db1'
+          ? [
+              idx + 1,
+              row.code,
+              row.transaction_date,
+              row.gateway,
+              `${row.amount_in} VND`,
+              row.account_number,
+              '',
+              row.transaction_content,
+            ]
+          : [
+              idx + 1,
+              row.trans_id || row.code,
+              row.created_at,
+              statusMessage,
+              `${row.amount} VND`,
+              row.request_id,
+              row.serial,
+              row.telco,
+            ];
   
-        if (tableKey === 'db1') {
-          // Hiển thị thông tin cho bảng db1
-          message += `\n#${idx + 1} - Mã giao dịch: ${row.code}\n`;
-          message += `Cổng thanh toán: ${row.gateway}\n`;
-          message += `Ngày giao dịch: ${row.transaction_date}\n`;
-          message += `Số tài khoản: ${row.account_number}\n`;
-          message += `Số tiền: ${row.amount_in} VND\n`;
-          message += `Nội dung giao dịch: ${row.transaction_content}\n`;
-        } else {
-          // Hiển thị thông tin cho bảng db2 và db3
-          message += `\n#${idx + 1} - Mã giao dịch: ${row.trans_id || row.code}\n`;
-          message += `Ngày giao dịch: ${row.created_at}\n`;
-          message += `Trạng thái: ${statusMessage}\n`;
-          message += `Số tiền: ${row.amount} VND\n`;
-          message += `Tên người dùng: ${row.request_id}\n`;
-          message += `Serial: ${row.serial}\n`;
-          message += `Nhà mạng: ${row.telco}\n`;
-          message += `-----------------------------------\n`;
-        }
+        tableData.push(rowData);
       });
+  
+      // Tạo bảng ASCII
+      const asciiTable = createAsciiTable(tableData);
+      message += `\`\`\`\n${asciiTable}\n\`\`\`\n`;
     }
   });
-  
-  return message;
 }
 
 // Kiểm tra và gửi thông báo nếu có dữ liệu mới
