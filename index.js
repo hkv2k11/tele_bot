@@ -150,7 +150,7 @@ function generateASCII(data) {
               row.code,
               '',
               row.account_number,
-              `${shop}`,
+              shop,
             ]
           : [
               idx + 1,
@@ -161,7 +161,7 @@ function generateASCII(data) {
               row.request_id,
               row.serial,
               row.telco,
-              `${shop}`,
+              shop,
             ];
 
         tableData.push(rowData);
