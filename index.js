@@ -110,35 +110,31 @@ function hasDataChanged(newData) {
 
 // Tạo ASCII khi có dữ liệu mới
 async function generateASCII(data) {
-  let messages = [];  // Array to store individual messages for each table
-
-  const statusMessages = {
-    "1": "✅ Thành công",
-    "2": "⚠️ Sai mệnh giá",
-    "3": "❌ Thẻ lỗi",
-    "4": "🛠 Bảo trì hệ thống",
-    "99": "⏳ Chờ xử lý",
-    "100": "📩 Gửi thẻ thất bại",
-  };
-
-  // Iterate through the tables db1, db2, db3
+  let messages = [];  // Declare messages array
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
       const tableName = `Bảng ${index + 1}`;
       let shop = ''; // Variable to store shop name
 
       // Assign shop name based on the table
-      if (index === 1) {
+      if (index === 0) {
         shop = "Rbl247 🤓-atm";
-      } else if (index === 2) {
+      } else if (index === 1) {
         shop = "Rbl247 🤓";
-      } else if (index === 3) {
+      } else if (index === 2) {
         shop = "Khocloud 😺";
       }
 
-      // Start the message for the table
-      let message = `🚨 **Dữ liệu mới vừa cập nhật!** 🚨\n\n`;
-      message += `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
+      let message = `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
+
+      const statusMessages = {
+        "1": "✅ Thành công",
+        "2": "⚠️ Sai mệnh giá",
+        "3": "❌ Thẻ lỗi",
+        "4": "🛠 Bảo trì hệ thống",
+        "99": "⏳ Chờ xử lý",
+        "100": "📩 Gửi thẻ thất bại",
+      };
 
       const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng'];
       const tableData = [headers];
@@ -193,14 +189,15 @@ async function generateASCII(data) {
   return messages;  // Return an array of messages
 }
 
-
-
 // Kiểm tra và gửi thông báo nếu có dữ liệu mới
 async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
-    const asciiMessage = generateASCII(newData);
-    await bot.telegram.sendMessage(CHAT_ID, asciiMessage);
+    await bot.telegram.sendMessage(CHAT_ID, '🚨 **Dữ liệu mới vừa cập nhật!** 🚨');
+    const asciiMessages = await generateASCII(newData);
+    for (let message of asciiMessages) {
+      await bot.telegram.sendMessage(CHAT_ID, message);
+    }
   }
 }
 
