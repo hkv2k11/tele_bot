@@ -182,7 +182,6 @@ async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
     const asciiMessage = generateASCII(newData); // Generate ASCII tables with updated data
-    await bot.telegram.sendMessage(CHAT_ID, '🚨 **Dữ liệu mới vừa cập nhật!** 🚨');
     await bot.telegram.sendMessage(CHAT_ID, `\`\`\`\n${asciiMessage}\n\`\`\``, { parse_mode: 'MarkdownV2' } ); // Send the ASCII message
   }
 }
