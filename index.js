@@ -166,7 +166,7 @@ function generateASCII(data) {
 
       // Tạo bảng ASCII
       const asciiTable = createAsciiTable(tableData);
-      finalMessage += ${escapeMarkdownV2(asciiTable)}; // Thêm bảng vào thông báo cuối cùng
+      finalMessage += `${escapeMarkdownV2(asciiTable)}`; // Thêm bảng vào thông báo cuối cùng
     }
   });
 
