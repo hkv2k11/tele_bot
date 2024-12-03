@@ -1,7 +1,7 @@
 const { Telegraf } = require('telegraf');
 const fetch = require('node-fetch');
 const os = require('os');
-require('./keep_alive'); // Import keep_alive.js để giữ bot luôn hoạt động
+require('./keep_alive'); // Import keep_alive.js to keep the bot running
 
 const TELEGRAM_TOKEN = '6783805716:AAFisKmrTvPfgM1YYzvY_o9bgOks6P2DDTk';
 const CHAT_ID = '5182125784';
@@ -11,10 +11,10 @@ const bot = new Telegraf(TELEGRAM_TOKEN);
 let previousData = {
   db1: null,
   db2: null,
-  db3: null, // Chỉnh lại cho đúng, vì bạn đang sử dụng db1, db2, db3 trong phần so sánh
+  db3: null, // Adjust to match the db keys
 };
 
-// Hàm tạo bảng ASCII có đường viền
+// Function to create ASCII table with borders
 function createAsciiTable(data) {
   const columnWidths = data[0].map((_, colIndex) =>
     Math.max(...data.map(row => String(row[colIndex]).length))
@@ -39,7 +39,7 @@ function createAsciiTable(data) {
   return table;
 }
 
-// Lệnh kiểm tra trạng thái (/status)
+// Command to check the bot status (/status)
 bot.command('status', async (ctx) => {
   const chatId = ctx.chat.id;
   const startTime = Date.now();
@@ -50,7 +50,7 @@ bot.command('status', async (ctx) => {
     const freeMemory = os.freemem() / (1024 * 1024 * 1024);
     const uptimeInSeconds = os.uptime();
 
-    // Tính uptime (d/h/m/s)
+    // Calculate uptime (days/hours/minutes/seconds)
     const days = Math.floor(uptimeInSeconds / (24 * 60 * 60));
     const hours = Math.floor((uptimeInSeconds % (24 * 60 * 60)) / (60 * 60));
     const minutes = Math.floor((uptimeInSeconds % (60 * 60)) / 60);
@@ -77,14 +77,14 @@ bot.command('status', async (ctx) => {
   }
 });
 
-// Lệnh bật bot (/bot_on)
+// Command to start the bot (/bot_on)
 bot.command('bot_on', async (ctx) => {
   const chatId = ctx.chat.id;
   await ctx.reply("✅ Bot đang hoạt động! Kiểm tra dữ liệu mới sẽ được thực hiện mỗi 30 giây.");
-  checkForUpdates(); // Thực hiện kiểm tra ngay lập tức khi chạy lệnh
+  checkForUpdates(); // Start checking immediately when the command is run
 });
 
-// Hàm lấy dữ liệu từ API
+// Function to fetch data from API
 async function fetchData() {
   try {
     const response = await fetch('https://congnap.id.vn/api/');
@@ -96,21 +96,20 @@ async function fetchData() {
   }
 }
 
-// So sánh dữ liệu cũ và mới
+// Compare old and new data
 function hasDataChanged(newData) {
   const keys = ['db1', 'db2', 'db3'];
   for (let key of keys) {
     if (JSON.stringify(newData[key]) !== JSON.stringify(previousData[key])) {
-      previousData = newData; // Lưu lại dữ liệu mới
+      previousData = newData; // Store the new data
       return true;
     }
   }
   return false;
 }
 
-// Tạo ASCII khi có dữ liệu mới
+// Function to generate ASCII table message when new data is available
 function generateASCII(data) {
-
   const statusMessages = {
     "1": "✅ Thành công",
     "2": "⚠️ Sai mệnh giá",
@@ -120,39 +119,39 @@ function generateASCII(data) {
     "100": "📩 Gửi thẻ thất bại",
   };
 
+  let finalMessage = ''; // Variable to store the entire message
+
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
-      const tableName = `Bảng ${index + 1}`;
-      let shop = ''; // Biến lưu tên shop
 
-      // Xác định tên shop theo bảng
-      if (index === 1) {
+
+      let shop = ''; // Variable to store the shop name
+
+      if (index === 0) {
         shop = "Rbl247 🤓-atm";
-      } else if (index === 2) {
+      } else if (index === 1) {
         shop = "Rbl247 🤓";
-      }  else if (index === 3) {
+      } else if (index === 2) {
         shop = "Khocloud 😺";
-      } 
+      }
 
-      // Thêm tiêu đề bảng
-      let message = `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
-
-      // Chuẩn bị dữ liệu cho bảng
-      const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng'];
+      // Prepare data for table
+      const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng', 'web'];
       const tableData = [headers];
 
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
         const rowData = tableKey === 'db1'
           ? [
-              idx + 1,          
-              row.code,
+              idx + 1,
+              row.reference_number,
               row.transaction_date,
-              row.gateway,
+              'done',
               `${row.amount_in} VND`,
-              row.account_number,
+              row.code,
               '',
-              row.transaction_content,
+              row.account_number,
+              `${shop}`
             ]
           : [
               idx + 1,
@@ -163,32 +162,33 @@ function generateASCII(data) {
               row.request_id,
               row.serial,
               row.telco,
+              `${shop}`
             ];
 
         tableData.push(rowData);
       });
 
-      // Tạo bảng ASCII
+      // Create ASCII table
       const asciiTable = createAsciiTable(tableData);
-      message += `\`\`\`\n${asciiTable}\n\`\`\`\n`;
+      finalMessage += `\`\`\`\n${asciiTable}\n\`\`\`\n`; // Append each table to final message
     }
   });
 
-  return message; // Thêm dòng này hehe
+  return finalMessage; // Return the final message with all tables
 }
 
-// Kiểm tra và gửi thông báo nếu có dữ liệu mới
+// Check and send notification if new data is available
 async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
-    const asciiMessage = generateASCII(newData);
+    const asciiMessage = generateASCII(newData); // Generate ASCII tables with updated data
     await bot.telegram.sendMessage(CHAT_ID, '🚨 **Dữ liệu mới vừa cập nhật!** 🚨');
-    await bot.telegram.sendMessage(CHAT_ID, asciiMessage);
+    await bot.telegram.sendMessage(CHAT_ID, asciiMessage); // Send the ASCII message
   }
 }
 
-// Cài đặt kiểm tra mỗi 30 giây
+// Set up checking every 30 seconds
 setInterval(checkForUpdates, 30000);
 
-// Khởi chạy bot
+// Launch the bot
 bot.launch();
