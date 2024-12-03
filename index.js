@@ -11,7 +11,7 @@ const bot = new Telegraf(TELEGRAM_TOKEN);
 let previousData = {
   db1: null,
   db2: null,
-  db3: null, // Chỉnh lại cho đúng, vì bạn đang sử dụng db1, db2, db3 trong phần so sánh
+  db3: null, 
 };
 
 // Hàm tạo bảng ASCII có đường viền
@@ -109,8 +109,8 @@ function hasDataChanged(newData) {
 }
 
 // Tạo ASCII khi có dữ liệu mới
-function generateASCII(data) {
-  let message = '🚨 **Dữ liệu mới vừa cập nhật!** 🚨\n\n';
+async function generateASCII(data) {
+  let messages = [];  // Array to store individual messages for each table
 
   const statusMessages = {
     "1": "✅ Thành công",
@@ -121,27 +121,29 @@ function generateASCII(data) {
     "100": "📩 Gửi thẻ thất bại",
   };
 
+  // Iterate through the tables db1, db2, db3
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
       const tableName = `Bảng ${index + 1}`;
-      let shop = ''; // Biến lưu tên shop
+      let shop = ''; // Variable to store shop name
 
-      // Xác định tên shop theo bảng
+      // Assign shop name based on the table
       if (index === 1) {
         shop = "Rbl247 🤓-atm";
       } else if (index === 2) {
         shop = "Rbl247 🤓";
-      }  else if (index === 3) {
+      } else if (index === 3) {
         shop = "Khocloud 😺";
-      } 
+      }
 
-      // Thêm tiêu đề bảng
+      // Start the message for the table
+      let message = `🚨 **Dữ liệu mới vừa cập nhật!** 🚨\n\n`;
       message += `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
 
-      // Chuẩn bị dữ liệu cho bảng
       const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng'];
       const tableData = [headers];
 
+      // Add rows to the table
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
         const rowData = tableKey === 'db1'
@@ -169,14 +171,29 @@ function generateASCII(data) {
         tableData.push(rowData);
       });
 
-      // Tạo bảng ASCII
+      // Create the ASCII table from the data
       const asciiTable = createAsciiTable(tableData);
       message += `\`\`\`\n${asciiTable}\n\`\`\`\n`;
+
+      // Split the message into smaller parts if it's too long
+      const maxMessageLength = 4096;  // Telegram message limit
+      while (message.length > maxMessageLength) {
+        const part = message.slice(0, maxMessageLength);
+        messages.push(part);
+        message = message.slice(maxMessageLength);
+      }
+
+      // Add the remaining part of the message
+      if (message.length > 0) {
+        messages.push(message);
+      }
     }
   });
 
-  return message; // Thêm dòng này hehe
+  return messages;  // Return an array of messages
 }
+
+
 
 // Kiểm tra và gửi thông báo nếu có dữ liệu mới
 async function checkForUpdates() {
