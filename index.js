@@ -13,6 +13,7 @@ let previousData = {
   db2: null,
   db3: null, // Điều chỉnh cho phù hợp với các bảng dữ liệu
 };
+
 // Hàm để tạo bảng ASCII với các đường viền
 function createAsciiTable(data) {
   const columnWidths = data[0].map((_, colIndex) =>
@@ -40,11 +41,9 @@ function createAsciiTable(data) {
 
 // Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
 function escapeMarkdownV2(text) {
-  // Bỏ tất cả dấu \ khỏi văn bản
-  return text.replace(/([`*_{}[\]()#+\-.!])/g, '$1');
+  // Chỉ thoát các ký tự đặc biệt trong MarkdownV2
+  return text.replace(/([`*_{}[\]()#+\-.!])/g, '\\$1');
 }
-
-
 
 // Lệnh kiểm tra trạng thái bot (/status)
 bot.command('status', async (ctx) => {
@@ -180,7 +179,7 @@ async function checkForUpdates() {
   if (newData && hasDataChanged(newData)) {
     const asciiMessage = generateASCII(newData); // Tạo bảng ASCII với dữ liệu mới
     try {
-      await bot.telegram.sendMessage(CHAT_ID, `\`\`\`\n${escapeMarkdownV2(asciiMessage)}\n\`\`\``, { parse_mode: 'MarkdownV2' }); // Gửi thông báo ASCII
+      await bot.telegram.sendMessage(CHAT_ID, asciiMessage); // Gửi thông báo ASCII
       console.log('Message sent successfully!');  // Log khi gửi thành công
     } catch (error) {
       console.error('Error sending message:', error);  // Log lỗi nếu gửi không thành công
