@@ -11,7 +11,7 @@ const bot = new Telegraf(TELEGRAM_TOKEN);
 let previousData = {
   db1: null,
   db2: null,
-  db3: null, 
+  db3: null, // Chỉnh lại cho đúng, vì bạn đang sử dụng db1, db2, db3 trong phần so sánh
 };
 
 // Hàm tạo bảng ASCII có đường viền
@@ -109,37 +109,38 @@ function hasDataChanged(newData) {
 }
 
 // Tạo ASCII khi có dữ liệu mới
-async function generateASCII(data) {
-  let messages = [];  // Declare messages array
+function generateASCII(data) {
+
+  const statusMessages = {
+    "1": "✅ Thành công",
+    "2": "⚠️ Sai mệnh giá",
+    "3": "❌ Thẻ lỗi",
+    "4": "🛠 Bảo trì hệ thống",
+    "99": "⏳ Chờ xử lý",
+    "100": "📩 Gửi thẻ thất bại",
+  };
+
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
       const tableName = `Bảng ${index + 1}`;
-      let shop = ''; // Variable to store shop name
+      let shop = ''; // Biến lưu tên shop
 
-      // Assign shop name based on the table
-      if (index === 0) {
+      // Xác định tên shop theo bảng
+      if (index === 1) {
         shop = "Rbl247 🤓-atm";
-      } else if (index === 1) {
-        shop = "Rbl247 🤓";
       } else if (index === 2) {
+        shop = "Rbl247 🤓";
+      }  else if (index === 3) {
         shop = "Khocloud 😺";
-      }
+      } 
 
+      // Thêm tiêu đề bảng
       let message = `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
 
-      const statusMessages = {
-        "1": "✅ Thành công",
-        "2": "⚠️ Sai mệnh giá",
-        "3": "❌ Thẻ lỗi",
-        "4": "🛠 Bảo trì hệ thống",
-        "99": "⏳ Chờ xử lý",
-        "100": "📩 Gửi thẻ thất bại",
-      };
-
+      // Chuẩn bị dữ liệu cho bảng
       const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng'];
       const tableData = [headers];
 
-      // Add rows to the table
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
         const rowData = tableKey === 'db1'
@@ -167,37 +168,22 @@ async function generateASCII(data) {
         tableData.push(rowData);
       });
 
-      // Create the ASCII table from the data
+      // Tạo bảng ASCII
       const asciiTable = createAsciiTable(tableData);
       message += `\`\`\`\n${asciiTable}\n\`\`\`\n`;
-
-      // Split the message into smaller parts if it's too long
-      const maxMessageLength = 4096;  // Telegram message limit
-      while (message.length > maxMessageLength) {
-        const part = message.slice(0, maxMessageLength);
-        messages.push(part);
-        message = message.slice(maxMessageLength);
-      }
-
-      // Add the remaining part of the message
-      if (message.length > 0) {
-        messages.push(message);
-      }
     }
   });
 
-  return messages;  // Return an array of messages
+  return message; // Thêm dòng này hehe
 }
 
 // Kiểm tra và gửi thông báo nếu có dữ liệu mới
 async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
+    const asciiMessage = generateASCII(newData);
     await bot.telegram.sendMessage(CHAT_ID, '🚨 **Dữ liệu mới vừa cập nhật!** 🚨');
-    const asciiMessages = await generateASCII(newData);
-    for (let message of asciiMessages) {
-      await bot.telegram.sendMessage(CHAT_ID, message);
-    }
+    await bot.telegram.sendMessage(CHAT_ID, asciiMessage);
   }
 }
 
