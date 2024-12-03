@@ -137,14 +137,14 @@ function generateASCII(data) {
       message += `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
 
       // Chuẩn bị dữ liệu cho bảng
-      const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng', 'Serial', 'Nhà mạng'];
+      const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng'];
       const tableData = [headers];
 
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
         const rowData = tableKey === 'db1'
           ? [
-              idx + 1,
+              idx + 1,          
               row.code,
               row.transaction_date,
               row.gateway,
