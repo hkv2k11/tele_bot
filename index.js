@@ -80,7 +80,7 @@ bot.command('status', async (ctx) => {
 // Command to start the bot (/bot_on)
 bot.command('bot_on', async (ctx) => {
   const chatId = ctx.chat.id;
-  await ctx.reply("✅ Bot đang hoạt động! Kiểm tra dữ liệu mới sẽ được thực hiện mỗi 30 giây.");
+  await ctx.reply("✅ Bot đang hoạt động! Kiểm tra dữ liệu mới sẽ được thực hiện mỗi 3 giây.");
   checkForUpdates(); // Start checking immediately when the command is run
 });
 
@@ -101,7 +101,6 @@ async function fetchData() {
 function hasDataChanged(newData) {
   const keys = ['db1', 'db2', 'db3'];
   for (let key of keys) {
-    console.log(`Checking data for ${key}:`, newData[key], previousData[key]);  // Add this line to see the comparison
     if (JSON.stringify(newData[key]) !== JSON.stringify(previousData[key])) {
       previousData = newData; // Store the new data
       return true;
@@ -125,16 +124,7 @@ function generateASCII(data) {
 
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
-
-      let shop = ''; // Variable to store the shop name
-
-      if (index === 0) {
-        shop = "Rbl247 🤓-atm";
-      } else if (index === 1) {
-        shop = "Rbl247 🤓";
-      } else if (index === 2) {
-        shop = "Khocloud 😺";
-      }
+      const shop = index === 0 ? "Rbl247 🤓-atm" : index === 1 ? "Rbl247 🤓" : "Khocloud 😺";
 
       // Prepare data for table
       const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng', 'web'];
