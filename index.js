@@ -1,7 +1,7 @@
 const { Telegraf } = require('telegraf');
 const fetch = require('node-fetch');
 const os = require('os');
-require('./keep_alive'); // Import keep_alive.js to keep the bot running
+require('./keep_alive'); // Import keep_alive.js để giữ bot luôn hoạt động
 
 const TELEGRAM_TOKEN = '6783805716:AAFisKmrTvPfgM1YYzvY_o9bgOks6P2DDTk';
 const CHAT_ID = '5182125784';
@@ -11,16 +11,16 @@ const bot = new Telegraf(TELEGRAM_TOKEN);
 let previousData = {
   db1: null,
   db2: null,
-  db3: null, // Adjust to match the db keys
+  db3: null, // Điều chỉnh cho phù hợp với các bảng dữ liệu
 };
 
-// Function to create ASCII table with borders
+// Hàm để tạo bảng ASCII với các đường viền
 function createAsciiTable(data) {
   const columnWidths = data[0].map((_, colIndex) =>
     Math.max(...data.map(row => String(row[colIndex]).length))
   );
 
-  const separator = '\\+' + columnWidths.map(width => '-'.repeat(width + 2)).join('\\+') + '\\+';
+  const separator = '\\+' + columnWidths.map(width => '-'.repeat(width + 2).replace(/-/g, '\\-')).join('\\+') + '\\+';
 
   const formatRow = (row) =>
     '| ' +
@@ -39,7 +39,12 @@ function createAsciiTable(data) {
   return table;
 }
 
-// Command to check the bot status (/status)
+// Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
+function escapeMarkdownV2(text) {
+  return text.replace(/([\\`*_{}[\]()#+\-.!])/g, '\\$1');
+}
+
+// Lệnh kiểm tra trạng thái bot (/status)
 bot.command('status', async (ctx) => {
   const chatId = ctx.chat.id;
   const startTime = Date.now();
@@ -50,7 +55,7 @@ bot.command('status', async (ctx) => {
     const freeMemory = os.freemem() / (1024 * 1024 * 1024);
     const uptimeInSeconds = os.uptime();
 
-    // Calculate uptime (days/hours/minutes/seconds)
+    // Tính thời gian hoạt động (ngày/giờ/phút/giây)
     const days = Math.floor(uptimeInSeconds / (24 * 60 * 60));
     const hours = Math.floor((uptimeInSeconds % (24 * 60 * 60)) / (60 * 60));
     const minutes = Math.floor((uptimeInSeconds % (60 * 60)) / 60);
@@ -70,21 +75,21 @@ bot.command('status', async (ctx) => {
 
     const asciiTable = createAsciiTable(data);
 
-    await bot.telegram.sendMessage(chatId, `\`\`\`\n${asciiTable}\n\`\`\``, { parse_mode: 'MarkdownV2' });
+    await bot.telegram.sendMessage(chatId, `\`\`\`\n${escapeMarkdownV2(asciiTable)}\n\`\`\``, { parse_mode: 'MarkdownV2' });
   } catch (error) {
     console.error('Error fetching system data:', error);
     await bot.telegram.sendMessage(chatId, 'Có lỗi xảy ra khi kiểm tra trạng thái!');
   }
 });
 
-// Command to start the bot (/bot_on)
+// Lệnh để bật bot (/bot_on)
 bot.command('bot_on', async (ctx) => {
   const chatId = ctx.chat.id;
   await ctx.reply("✅ Bot đang hoạt động! Kiểm tra dữ liệu mới sẽ được thực hiện mỗi 3 giây.");
-  checkForUpdates(); // Start checking immediately when the command is run
+  checkForUpdates(); // Bắt đầu kiểm tra ngay khi lệnh được chạy
 });
 
-// Function to fetch data from API
+// Hàm lấy dữ liệu từ API
 async function fetchData() {
   try {
     const response = await fetch('https://congnap.id.vn/api/');
@@ -96,19 +101,19 @@ async function fetchData() {
   }
 }
 
-// Compare old and new data
+// Hàm so sánh dữ liệu cũ và mới
 function hasDataChanged(newData) {
   const keys = ['db1', 'db2', 'db3'];
   for (let key of keys) {
     if (JSON.stringify(newData[key]) !== JSON.stringify(previousData[key])) {
-      previousData[key] = newData[key]; // Update the previous data for the key
+      previousData[key] = newData[key]; // Cập nhật dữ liệu cũ
       return true;
     }
   }
   return false;
 }
 
-// Function to generate ASCII table message when new data is available
+// Hàm tạo bảng ASCII và gửi thông báo nếu có dữ liệu mới
 function generateASCII(data) {
   const statusMessages = {
     "1": "✅ Thành công",
@@ -119,13 +124,13 @@ function generateASCII(data) {
     "100": "📩 Gửi thẻ thất bại",
   };
 
-  let finalMessage = ''; // Variable to store the entire message
+  let finalMessage = ''; // Biến chứa toàn bộ thông báo
 
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
       const shop = index === 0 ? "Rbl247 🤓-atm" : index === 1 ? "Rbl247 🤓" : "Khocloud 😺";
 
-      // Prepare data for table
+      // Chuẩn bị dữ liệu cho bảng
       const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng', 'web'];
       const tableData = [headers];
 
@@ -158,31 +163,31 @@ function generateASCII(data) {
         tableData.push(rowData);
       });
 
-      // Create ASCII table
+      // Tạo bảng ASCII
       const asciiTable = createAsciiTable(tableData);
-      finalMessage += `\`\`\`\n${asciiTable}\n\`\`\`\n`; // Append each table to final message
+      finalMessage += `\`\`\`\n${escapeMarkdownV2(asciiTable)}\n\`\`\`\n`; // Thêm bảng vào thông báo cuối cùng
     }
   });
 
-  return finalMessage; // Return the final message with all tables
+  return finalMessage; // Trả về thông báo cuối cùng chứa tất cả các bảng
 }
 
-// Check and send notification if new data is available
+// Kiểm tra và gửi thông báo nếu có dữ liệu mới
 async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
-    const asciiMessage = generateASCII(newData); // Generate ASCII tables with updated data
+    const asciiMessage = generateASCII(newData); // Tạo bảng ASCII với dữ liệu mới
     try {
-      await bot.telegram.sendMessage(CHAT_ID, `\`\`\`\n${asciiMessage}\n\`\`\``, { parse_mode: 'MarkdownV2' }); // Send the ASCII message
-      console.log('Message sent successfully!');  // Log success
+      await bot.telegram.sendMessage(CHAT_ID, `\`\`\`\n${escapeMarkdownV2(asciiMessage)}\n\`\`\``, { parse_mode: 'MarkdownV2' }); // Gửi thông báo ASCII
+      console.log('Message sent successfully!');  // Log khi gửi thành công
     } catch (error) {
-      console.error('Error sending message:', error);  // Log error if sending message fails
+      console.error('Error sending message:', error);  // Log lỗi nếu gửi không thành công
     }
   }
 }
 
-// Set up checking every 3 seconds
+// Thiết lập kiểm tra mỗi 3 giây
 setInterval(checkForUpdates, 3000);
 
-// Launch the bot
+// Khởi động bot
 bot.launch();
