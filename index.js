@@ -128,10 +128,12 @@ function generateASCII(data) {
 
       // Xác định tên shop theo bảng
       if (index === 1) {
-        shop = "Khocloud 😺";
+        shop = "Rbl247 🤓-atm";
       } else if (index === 2) {
         shop = "Rbl247 🤓";
-      }
+      }  else if (index === 3) {
+        shop = "Khocloud 😺";
+      } 
 
       // Thêm tiêu đề bảng
       message += `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
