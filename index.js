@@ -14,32 +14,6 @@ let previousData = {
   db3: null, // Điều chỉnh cho phù hợp với các bảng dữ liệu
 };
 
-// Hàm để tạo bảng ASCII với các đường viền
-function createAsciiTable(data) {
-  const columnWidths = data[0].map((_, colIndex) =>
-    Math.max(...data.map(row => String(row[colIndex]).length))
-  );
-
-  // Cập nhật cách tạo separator để có định dạng mới
-  const separator = '+' + columnWidths.map(width => '-'.repeat(width + 2)).join('+') + '+';
-
-  const formatRow = (row) =>
-    '| ' +
-    row.map((cell, i) => String(cell).padEnd(columnWidths[i])).join(' | ') +
-    ' |';
-
-  let table = separator + '\n';
-  table += formatRow(data[0]) + '\n'; // Header
-  table += separator + '\n';
-
-  for (let i = 1; i < data.length; i++) {
-    table += formatRow(data[i]) + '\n';
-  }
-  table += separator;
-
-  return table;
-}
-
 // Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
 function escapeMarkdownV2(text) {
   // Chỉ thoát các ký tự đặc biệt trong MarkdownV2
@@ -75,9 +49,13 @@ bot.command('status', async (ctx) => {
       ['Uptime (d/h/m/s)', `${days}d ${hours}h ${minutes}m ${seconds}s`],
     ];
 
-    const asciiTable = createAsciiTable(data);
+    // Format data as plain text
+    let textMessage = '';
+    data.forEach(row => {
+      textMessage += `${row[0]}: ${row[1]}\n`;
+    });
 
-    await bot.telegram.sendMessage(chatId, `\`\`\`\n${escapeMarkdownV2(asciiTable)}\n\`\`\``, { parse_mode: 'MarkdownV2' });
+    await bot.telegram.sendMessage(chatId, textMessage);
   } catch (error) {
     console.error('Error fetching system data:', error);
     await bot.telegram.sendMessage(chatId, 'Có lỗi xảy ra khi kiểm tra trạng thái!');
@@ -115,8 +93,8 @@ function hasDataChanged(newData) {
   return false;
 }
 
-// Hàm tạo bảng ASCII và gửi thông báo nếu có dữ liệu mới
-function generateASCII(data) {
+// Hàm tạo dữ liệu và gửi thông báo nếu có dữ liệu mới
+function generateTextData(data) {
   const statusMessages = {
     "1": "✅ Thành công",
     "2": "⚠️ Sai mệnh giá",
@@ -133,41 +111,14 @@ function generateASCII(data) {
       const shop = index === 0 ? "Rbl247 🤓-atm" : index === 1 ? "Rbl247 🤓" : "Khocloud 😺";
 
       // Chuẩn bị dữ liệu cho bảng
-      const headers = ['#', 'Mã GD', 'Ngày GD', 'Trạng thái', 'Số tiền', 'Người dùng/Mã xác minh', 'Serial', 'Nhà mạng', 'web'];
-      const tableData = [headers];
-
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
         const rowData = tableKey === 'db1'
-          ? [
-              idx + 1,
-              row.reference_number,
-              row.transaction_date,
-              'done',
-              `${row.amount_in} VND`,
-              row.code,
-              '',
-              row.account_number,
-              shop,
-            ]
-          : [
-              idx + 1,
-              row.trans_id || row.code,
-              row.created_at,
-              statusMessage,
-              `${row.amount} VND`,
-              row.request_id,
-              row.serial,
-              row.telco,
-              shop,
-            ];
+          ? `#${idx + 1} Mã GD: ${row.reference_number}, Ngày GD: ${row.transaction_date}, Trạng thái: done, Số tiền: ${row.amount_in} VND, Người dùng: ${row.code}, Nhà mạng: ${row.account_number}, Web: ${shop}`
+          : `#${idx + 1} Mã GD: ${row.trans_id || row.code}, Ngày GD: ${row.created_at}, Trạng thái: ${statusMessage}, Số tiền: ${row.amount} VND, Người dùng: ${row.request_id}, Serial: ${row.serial}, Nhà mạng: ${row.telco}, Web: ${shop}`;
 
-        tableData.push(rowData);
+        finalMessage += `${rowData}\n`;
       });
-
-      // Tạo bảng ASCII
-      const asciiTable = createAsciiTable(tableData);
-      finalMessage += `${escapeMarkdownV2(asciiTable)}`; // Thêm bảng vào thông báo cuối cùng
     }
   });
 
@@ -178,9 +129,9 @@ function generateASCII(data) {
 async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
-    const asciiMessage = generateASCII(newData); // Tạo bảng ASCII với dữ liệu mới
+    const textMessage = generateTextData(newData); // Tạo dữ liệu dưới dạng văn bản
     try {
-      await bot.telegram.sendMessage(CHAT_ID, asciiMessage); // Gửi thông báo ASCII
+      await bot.telegram.sendMessage(CHAT_ID, textMessage); // Gửi thông báo văn bản
       console.log('Message sent successfully!');  // Log khi gửi thành công
     } catch (error) {
       console.error('Error sending message:', error);  // Log lỗi nếu gửi không thành công
