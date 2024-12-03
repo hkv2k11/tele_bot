@@ -7,7 +7,7 @@ const http = require('http');
 
 // Endpoint đơn giản để giữ bot hoạt động
 app.get('/', (req, res) => {
-  res.send('meooooooooooooooooooooooo');
+  req.send(`<h1>Bot alive</h1>`)
 });
 
 // Lắng nghe trên một cổng
