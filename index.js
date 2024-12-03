@@ -38,6 +38,7 @@ function createAsciiTable(data) {
   return table;
 }
 
+
 // Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
 function escapeMarkdownV2(text) {
   return text.replace(/([\\`*_{}[\]()#+\-.!])/g, '\\$1');
