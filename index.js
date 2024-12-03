@@ -14,11 +14,11 @@ let previousData = {
   db3: null, // Điều chỉnh cho phù hợp với các bảng dữ liệu
 };
 
-// Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
-function escapeMarkdownV2(text) {
-  // Chỉ thoát các ký tự đặc biệt trong MarkdownV2
-  return text.replace(/([`*_{}[\]()#+\-.!])/g, '\\$1');
-}
+// // Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
+// function escapeMarkdownV2(text) {
+//   // Chỉ thoát các ký tự đặc biệt trong MarkdownV2
+//   return text.replace(/([`*_{}[\]()#+\-.!])/g, '\\$1');
+// }
 
 // Lệnh kiểm tra trạng thái bot (/status)
 bot.command('status', async (ctx) => {
@@ -114,10 +114,10 @@ function generateTextData(data) {
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
         const rowData = tableKey === 'db1'
-          ? `#${idx + 1} Mã GD: ${row.reference_number}, Ngày GD: ${row.transaction_date}, Trạng thái: done, Số tiền: ${row.amount_in} VND, Người dùng: ${row.code}, Nhà mạng: ${row.account_number}, Web: ${shop}`
-          : `#${idx + 1} Mã GD: ${row.trans_id || row.code}, Ngày GD: ${row.created_at}, Trạng thái: ${statusMessage}, Số tiền: ${row.amount} VND, Người dùng: ${row.request_id}, Serial: ${row.serial}, Nhà mạng: ${row.telco}, Web: ${shop}`;
+          ? `\n#${idx + 1}\nMã GD: ${row.reference_number},\nNgày GD: ${row.transaction_date},\nTrạng thái: done,\nSố tiền: ${row.amount_in} VND,\nNgười dùng: ${row.code},\nNhà mạng: ${row.account_number},\nWeb: ${shop}`
+          : `\n#${idx + 1}\nMã GD: ${row.trans_id || row.code},\nNgày GD: ${row.created_at},\nTrạng thái: ${statusMessage},\nSố tiền: ${row.amount} VND,\nNgười dùng: ${row.request_id},\nSerial: ${row.serial},\nNhà mạng: ${row.telco},\nWeb: ${shop}`;
 
-        finalMessage += `${rowData}\n`;
+        finalMessage += `${rowData}\n`; // Đưa dữ liệu vào finalMessage
       });
     }
   });
