@@ -124,7 +124,6 @@ function generateASCII(data) {
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
 
-
       let shop = ''; // Variable to store the shop name
 
       if (index === 0) {
@@ -151,7 +150,7 @@ function generateASCII(data) {
               row.code,
               '',
               row.account_number,
-              `${shop}`
+              `${shop}`,
             ]
           : [
               idx + 1,
@@ -162,7 +161,7 @@ function generateASCII(data) {
               row.request_id,
               row.serial,
               row.telco,
-              `${shop}`
+              `${shop}`,
             ];
 
         tableData.push(rowData);
