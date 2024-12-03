@@ -89,7 +89,6 @@ async function fetchData() {
   try {
     const response = await fetch('https://congnap.id.vn/api/');
     const data = await response.json();
-    console.log('Fetched data:', data);  // Log the fetched data
     return data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -102,7 +101,7 @@ function hasDataChanged(newData) {
   const keys = ['db1', 'db2', 'db3'];
   for (let key of keys) {
     if (JSON.stringify(newData[key]) !== JSON.stringify(previousData[key])) {
-      previousData = newData; // Store the new data
+      previousData[key] = newData[key]; // Update the previous data for the key
       return true;
     }
   }
@@ -165,7 +164,6 @@ function generateASCII(data) {
     }
   });
 
-  console.log('Generated ASCII Message:', finalMessage); // Log the generated ASCII message
   return finalMessage; // Return the final message with all tables
 }
 
