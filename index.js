@@ -48,7 +48,14 @@ bot.command('status', async (ctx) => {
     const cpuUsage = os.loadavg()[0];
     const totalMemory = os.totalmem() / (1024 * 1024 * 1024);
     const freeMemory = os.freemem() / (1024 * 1024 * 1024);
-    const uptime = os.uptime() / 60;
+    const uptimeInSeconds = os.uptime();
+
+    // Tính uptime (d/h/m/s)
+    const days = Math.floor(uptimeInSeconds / (24 * 60 * 60));
+    const hours = Math.floor((uptimeInSeconds % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((uptimeInSeconds % (60 * 60)) / 60);
+    const seconds = Math.floor(uptimeInSeconds % 60);
+
     const pingTime = Date.now() - startTime;
 
     const data = [
@@ -58,7 +65,7 @@ bot.command('status', async (ctx) => {
       ['Memory Usage (%)', ((1 - freeMemory / totalMemory) * 100).toFixed(2)],
       ['Total Memory (GB)', totalMemory.toFixed(2)],
       ['Free Memory (GB)', freeMemory.toFixed(2)],
-      ['Uptime (Minutes)', uptime.toFixed(2)],
+      ['Uptime (d/h/m/s)', `${days}d ${hours}h ${minutes}m ${seconds}s`],
     ];
 
     const asciiTable = createAsciiTable(data);
