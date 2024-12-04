@@ -27,8 +27,8 @@ bot.command('status', async (ctx) => {
 
   try {
     const cpuUsage = os.loadavg()[0];
-    const totalMemory = os.totalmem() / (1024 * 1024 * 1024);
-    const freeMemory = os.freemem() / (1024 * 1024 * 1024);
+    const totalMemory = os.totalmem() / ( 1024 * 1024);
+    const freeMemory = os.freemem() / ( 1024 * 1024);
     const uptimeInSeconds = os.uptime();
 
     // Tính thời gian hoạt động (ngày/giờ/phút/giây)
@@ -40,10 +40,9 @@ bot.command('status', async (ctx) => {
     const pingTime = Date.now() - startTime;
 
     const data = [
-      ['Metric', 'Value'],
       ['Ping (ms)', pingTime],
-      ['CPU Usage (%)', (cpuUsage * 100).toFixed(2)],
-      ['Memory Usage (%)', ((1 - freeMemory / totalMemory) * 100).toFixed(2)],
+      ['CPU Usage (%)', (cpuUsage).toFixed(2)],
+      ['Memory Usage (%)', ((1 - freeMemory / totalMemory)).toFixed(2)],
       ['Total Memory (GB)', totalMemory.toFixed(2)],
       ['Free Memory (GB)', freeMemory.toFixed(2)],
       ['Uptime (d/h/m/s)', `${days}d ${hours}h ${minutes}m ${seconds}s`],
@@ -108,7 +107,7 @@ function generateTextData(data) {
 
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
-      const shop = index === 0 ? "Rbl247 🤓-atm" : index === 1 ? "Rbl247 🤓" : "Khocloud 😺";
+      const shop = index === 0 ? "Rbl247 🤓-atm" : index === 1 ? "Khocloud 😺" : "Rbl247 🤓";
 
       // Chuẩn bị dữ liệu cho bảng
       data[tableKey].forEach((row, idx) => {
