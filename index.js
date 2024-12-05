@@ -14,14 +14,9 @@ let previousData = {
   db3: null, // Điều chỉnh cho phù hợp với các bảng dữ liệu
 };
 
-// // Hàm thoát MarkdownV2 để tránh lỗi đặc biệt
-// function escapeMarkdownV2(text) {
-//   // Chỉ thoát các ký tự đặc biệt trong MarkdownV2
-//   return text.replace(/([`*_{}[\]()#+\-.!])/g, '\\$1');
-// }
 
-// Lệnh kiểm tra trạng thái bot (/status)
-bot.command('status', async (ctx) => {
+// Lệnh kiểm tra trạng thái bot (/start)
+bot.command('start', async (ctx) => {
   const chatId = ctx.chat.id;
   const startTime = Date.now();
 
@@ -140,6 +135,21 @@ async function checkForUpdates() {
 
 // Thiết lập kiểm tra mỗi 3 giây
 setInterval(checkForUpdates, 3000);
+
+// call lại các dữ liệu (/recall)
+bot.command('recall', async (ctx) => {
+  const chatId = ctx.chat.id;
+  await ctx.reply("✅ Đang gọi lại dữ liệu. Vui lòng chờ...");
+  const newData = await fetchData();
+  if (newData) {
+    const textMessage = generateTextData(newData);
+    await bot.telegram.sendMessage(chatId, textMessage);
+  } else {
+    await bot.telegram.sendMessage(chatId, "❌ Lỗi : cái oắc đờ phắc gì vậy???");
+  }
+});
+
+
 
 // Khởi động bot
 bot.launch();
