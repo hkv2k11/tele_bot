@@ -102,7 +102,7 @@ function generateTextData(data) {
 
   ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
-      const shop = index === 0 ? "Rbl247 🤓-atm" : index === 1 ? "Khocloud 😺" : "Rbl247 🤓";
+      const shop = index === 0 ? "bloxmmo 🤓-atm" : index === 1 ? "Khocloud 😺" : "bloxmmo 🤓";
 
       // Chuẩn bị dữ liệu cho bảng
       data[tableKey].forEach((row, idx) => {
