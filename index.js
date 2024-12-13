@@ -158,6 +158,15 @@ bot.command('recall', async (ctx) => {
 });
 
 
+bot.command('spam', async (ctx) => {
+  const chatId = ctx.chat.id;
+  await ctx.reply('Nhập sđt cần spam: ')
+
+  spam()
+
+
+});
+
 
 // Khởi động bot
 bot.launch();
