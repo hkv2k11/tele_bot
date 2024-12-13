@@ -11,70 +11,56 @@ const bot = new Telegraf(TELEGRAM_TOKEN);
 let previousData = {
   db1: null,
   db2: null,
-  db3: null,  // Chỉnh lại cho đúng, vì bạn đang sử dụng db1, db2, db3 trong phần so sánh
+  db3: null, // Điều chỉnh cho phù hợp với các bảng dữ liệu
 };
 
-// Hàm tạo bảng ASCII có đường viền
-function createAsciiTable(data) {
-  const columnWidths = data[0].map((_, colIndex) =>
-    Math.max(...data.map(row => String(row[colIndex]).length))
-  );
 
-  const separator = '+' + columnWidths.map(width => '-'.repeat(width + 2)).join('+') + '+';
-
-  const formatRow = (row) =>
-    '| ' +
-    row.map((cell, i) => String(cell).padEnd(columnWidths[i])).join(' | ') +
-    ' |';
-
-  let table = separator + '\n';
-  table += formatRow(data[0]) + '\n'; // Header
-  table += separator + '\n';
-
-  for (let i = 1; i < data.length; i++) {
-    table += formatRow(data[i]) + '\n';
-  }
-  table += separator;
-
-  return table;
-}
-
-// Lệnh kiểm tra trạng thái (/status)
-bot.command('status', async (ctx) => {
+// Lệnh kiểm tra trạng thái bot (/start)
+bot.command('start', async (ctx) => {
   const chatId = ctx.chat.id;
   const startTime = Date.now();
 
   try {
     const cpuUsage = os.loadavg()[0];
-    const totalMemory = os.totalmem() / (1024 * 1024 * 1024);
-    const freeMemory = os.freemem() / (1024 * 1024 * 1024);
-    const uptime = os.uptime() / 60;
+    const totalMemory = os.totalmem() / ( 1024 * 1024);
+    const freeMemory = os.freemem() / ( 1024 * 1024);
+    const uptimeInSeconds = os.uptime();
+
+    // Tính thời gian hoạt động (ngày/giờ/phút/giây)
+    const days = Math.floor(uptimeInSeconds / (24 * 60 * 60));
+    const hours = Math.floor((uptimeInSeconds % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((uptimeInSeconds % (60 * 60)) / 60);
+    const seconds = Math.floor(uptimeInSeconds % 60);
+
     const pingTime = Date.now() - startTime;
 
     const data = [
-      ['Metric', 'Value'],
       ['Ping (ms)', pingTime],
-      ['CPU Usage (%)', (cpuUsage * 100).toFixed(2)],
-      ['Memory Usage (%)', ((1 - freeMemory / totalMemory) * 100).toFixed(2)],
+      ['CPU Usage (%)', (cpuUsage).toFixed(2)],
+      ['Memory Usage (%)', ((1 - freeMemory / totalMemory)).toFixed(2)],
       ['Total Memory (GB)', totalMemory.toFixed(2)],
       ['Free Memory (GB)', freeMemory.toFixed(2)],
-      ['Uptime (Minutes)', uptime.toFixed(2)],
+      ['Uptime (d/h/m/s)', `${days}d ${hours}h ${minutes}m ${seconds}s`],
     ];
 
-    const asciiTable = createAsciiTable(data);
+    // Format data as plain text
+    let textMessage = '';
+    data.forEach(row => {
+      textMessage += `${row[0]}: ${row[1]}\n`;
+    });
 
-    await bot.telegram.sendMessage(chatId, `\`\`\`\n${asciiTable}\n\`\`\``, { parse_mode: 'MarkdownV2' });
+    await bot.telegram.sendMessage(chatId, textMessage);
   } catch (error) {
     console.error('Error fetching system data:', error);
     await bot.telegram.sendMessage(chatId, 'Có lỗi xảy ra khi kiểm tra trạng thái!');
   }
 });
 
-// Lệnh bật bot (/bot_on)
+// Lệnh để bật bot (/bot_on)
 bot.command('bot_on', async (ctx) => {
   const chatId = ctx.chat.id;
-  await ctx.reply("✅ Bot đang hoạt động! Kiểm tra dữ liệu mới sẽ được thực hiện mỗi 30 giây.");
-  checkForUpdates(); // Thực hiện kiểm tra ngay lập tức khi chạy lệnh
+  await ctx.reply("✅ Bot đang hoạt động! Kiểm tra dữ liệu mới sẽ được thực hiện mỗi 3 giây.");
+  checkForUpdates(); // Bắt đầu kiểm tra ngay khi lệnh được chạy
 });
 
 // Hàm lấy dữ liệu từ API
@@ -89,22 +75,20 @@ async function fetchData() {
   }
 }
 
-// So sánh dữ liệu cũ và mới
+// Hàm so sánh dữ liệu cũ và mới
 function hasDataChanged(newData) {
   const keys = ['db1', 'db2', 'db3'];
   for (let key of keys) {
     if (JSON.stringify(newData[key]) !== JSON.stringify(previousData[key])) {
-      previousData = newData; // Lưu lại dữ liệu mới
+      previousData[key] = newData[key]; // Cập nhật dữ liệu cũ
       return true;
     }
   }
   return false;
 }
 
-// Tạo ASCII khi có dữ liệu mới
-function generateASCII(data) {
-  let message = '🚨 **Dữ liệu mới vừa cập nhật!** 🚨\n\n';
-
+// Hàm tạo dữ liệu và gửi thông báo nếu có dữ liệu mới
+function generateTextData(data) {
   const statusMessages = {
     "1": "✅ Thành công",
     "2": "⚠️ Sai mệnh giá",
@@ -114,60 +98,66 @@ function generateASCII(data) {
     "100": "📩 Gửi thẻ thất bại",
   };
 
-  ['db1', 'db2', 'db3'].forEach((tableKey, index) => {
+  let finalMessage = ''; // Biến chứa toàn bộ thông báo
+
+  ['db1', 'db2', 'db3', 'db4'].forEach((tableKey, index) => {
     if (data[tableKey] && data[tableKey].length > 0) {
-      const tableName = `Bảng ${index + 1}`;
-      let shop = ''; // Biến lưu tên shop
+      const shop = index === 0 
+        ? "bloxmmo 🤓-atm" 
+        : index === 1 
+          ? "khocloud 🍀-atm" 
+          : index === 2 
+            ? "Khocloud 😺" 
+            : "bloxmmo 🤓";
+
   
-      // Xác định tên shop theo bảng
-      if (index === 1) {
-        shop = "Khocloud 😺";
-      } else if (index === 2) {
-        shop = "Rbl247 🤓";
-      }
-  
-      message += `📈 **${tableName} ${shop ? '- ' + shop : ''}**:\n`;
-  
+      // Chuẩn bị dữ liệu cho bảng
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
-  
-        if (tableKey === 'db1') {
-          // Hiển thị thông tin cho bảng db1
-          message += `\n#${idx + 1} - Mã giao dịch: ${row.code}\n`;
-          message += `Cổng thanh toán: ${row.gateway}\n`;
-          message += `Ngày giao dịch: ${row.transaction_date}\n`;
-          message += `Số tài khoản: ${row.account_number}\n`;
-          message += `Số tiền: ${row.amount_in} VND\n`;
-          message += `Nội dung giao dịch: ${row.transaction_content}\n`;
-        } else {
-          // Hiển thị thông tin cho bảng db2 và db3
-          message += `\n#${idx + 1} - Mã giao dịch: ${row.trans_id || row.code}\n`;
-          message += `Ngày giao dịch: ${row.created_at}\n`;
-          message += `Trạng thái: ${statusMessage}\n`;
-          message += `Số tiền: ${row.amount} VND\n`;
-          message += `Tên người dùng: ${row.request_id}\n`;
-          message += `Serial: ${row.serial}\n`;
-          message += `Nhà mạng: ${row.telco}\n`;
-          message += `-----------------------------------\n`;
-        }
+        const Atm = ['db1', 'db2'];
+        const rowData = tableKey == Atm
+          ? `\n#${idx + 1}\nMã GD: ${row.reference_number},\nNgày GD: ${row.transaction_date},\nTrạng thái: done,\nSố tiền: ${row.amount_in} VND,\nNgười dùng: ${row.code},\nSố tài khoản: ${row.sub_account},\nWeb: ${shop}`
+          : `\n#${idx + 1}\nMã GD: ${row.trans_id || row.code},\nNgày GD: ${row.created_at},\nTrạng thái: ${statusMessage},\nSố tiền: ${row.amount} VND,\nNgười dùng/mã hash: ${row.request_id},\nSerial: ${row.serial},\nNhà mạng: ${row.telco},\nWeb: ${shop}`;
+
+        finalMessage += `${rowData}\n`; // Đưa dữ liệu vào finalMessage
       });
     }
   });
-  
-  return message;
+
+  return finalMessage; // Trả về thông báo cuối cùng chứa tất cả các bảng
 }
 
 // Kiểm tra và gửi thông báo nếu có dữ liệu mới
 async function checkForUpdates() {
   const newData = await fetchData();
   if (newData && hasDataChanged(newData)) {
-    const asciiMessage = generateASCII(newData);
-    await bot.telegram.sendMessage(CHAT_ID, asciiMessage);
+    const textMessage = generateTextData(newData); // Tạo dữ liệu dưới dạng văn bản
+    try {
+      await bot.telegram.sendMessage(CHAT_ID, textMessage); // Gửi thông báo văn bản
+      console.log('Message sent successfully!');  // Log khi gửi thành công
+    } catch (error) {
+      console.error('Error sending message:', error);  // Log lỗi nếu gửi không thành công
+    }
   }
 }
 
-// Cài đặt kiểm tra mỗi 30 giây
-setInterval(checkForUpdates, 30000);
+// Thiết lập kiểm tra mỗi 3 giây
+setInterval(checkForUpdates, 3000);
 
-// Khởi chạy bot
+// call lại các dữ liệu (/recall)
+bot.command('recall', async (ctx) => {
+  const chatId = ctx.chat.id;
+  await ctx.reply("✅ Đang gọi lại dữ liệu. Vui lòng chờ...");
+  const newData = await fetchData();
+  if (newData) {
+    const textMessage = generateTextData(newData);
+    await bot.telegram.sendMessage(chatId, textMessage);
+  } else {
+    await bot.telegram.sendMessage(chatId, "❌ Lỗi : cái oắc đờ phắc gì vậy???");
+  }
+});
+
+
+
+// Khởi động bot
 bot.launch();
