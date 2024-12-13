@@ -114,7 +114,8 @@ function generateTextData(data) {
       // Chuẩn bị dữ liệu cho bảng
       data[tableKey].forEach((row, idx) => {
         const statusMessage = statusMessages[row.status] || "🔍 Không xác định";
-        const rowData = tableKey === 'db1' || 'db2'
+        const Atm = ['db1', 'db2'];
+        const rowData = tableKey == Atm
           ? `\n#${idx + 1}\nMã GD: ${row.reference_number},\nNgày GD: ${row.transaction_date},\nTrạng thái: done,\nSố tiền: ${row.amount_in} VND,\nNgười dùng: ${row.code},\nSố tài khoản: ${row.sub_account},\nWeb: ${shop}`
           : `\n#${idx + 1}\nMã GD: ${row.trans_id || row.code},\nNgày GD: ${row.created_at},\nTrạng thái: ${statusMessage},\nSố tiền: ${row.amount} VND,\nNgười dùng/mã hash: ${row.request_id},\nSerial: ${row.serial},\nNhà mạng: ${row.telco},\nWeb: ${shop}`;
 
