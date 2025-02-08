@@ -66,7 +66,7 @@ bot.command('bot_on', async (ctx) => {
 // Hàm lấy dữ liệu từ API
 async function fetchData() {
   try {
-    const response = await fetch('https://congnap.id.vn/api/');
+    const response = await fetch('https://congnap.id.vn/api/index.php');
     const data = await response.json();
     return data;
   } catch (error) {
@@ -157,15 +157,6 @@ bot.command('recall', async (ctx) => {
   }
 });
 
-
-/* bot.command('spam', async (ctx) => {
-  const Spamsms => spam(sdt){
-    sdt = input 
-    }
-
-
-
-});*\ 
 
 
 // Khởi động bot
