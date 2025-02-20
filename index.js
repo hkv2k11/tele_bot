@@ -4,6 +4,10 @@ const { setupStartCommand } = require('./cmd/start');
 const { setupBotOnCommand } = require('./cmd/bot_on');
 const { setupRecallCommand } = require('./cmd/recall');
 const { setupAddKhoCloudCommand } = require('./cmd/add_khocloud'); // Thêm lệnh mới
+const { setupBanCommand } = require('./cmd/ban'); // Thêm dòng này
+
+
+
 
 const TELEGRAM_TOKEN = '6783805716:AAFisKmrTvPfgM1YYzvY_o9bgOks6P2DDTk';
 const CHAT_ID = '5182125784';
@@ -15,7 +19,7 @@ setupStartCommand(bot);
 setupBotOnCommand(bot, checkForUpdates);
 setupRecallCommand(bot, fetchData);
 setupAddKhoCloudCommand(bot); // Đăng ký lệnh add
-
+setupBanCommand(bot);
 // Khởi động bot
 bot.launch();
 
