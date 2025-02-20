@@ -12,8 +12,13 @@ module.exports = (bot) => {
 
     try {
       const response = await axios.get(apiUrl);
-      ctx.reply(`🔄 Đang cập nhật trạng thái...\n📌 Request ID: ${requestId}`);
-      ctx.reply(`📩 Phản hồi từ API: ${response.data}`);
+      const data = response.data; // Lấy dữ liệu JSON từ API
+
+      if (typeof data === 'object') {
+        ctx.reply(`📩 Phản hồi từ API:\n\n📌 **Trạng thái**: ${data.status}\n📜 **Thông báo**: ${data.message}`);
+      } else {
+        ctx.reply(`📩 Phản hồi từ API: ${data}`);
+      }
     } catch (error) {
       ctx.reply("⚠️ Lỗi khi cập nhật trạng thái!");
       console.error("Lỗi API:", error);
