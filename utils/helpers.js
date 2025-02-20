@@ -43,6 +43,7 @@ const statusMessages = {
       .join('\n\n');
   };
   
+
   function formatRow(row, idx, shop, tableKey) {
     const isATM = ['db1', 'db2'].includes(tableKey);
     
@@ -51,7 +52,7 @@ const statusMessages = {
   Mã GD: ${row.reference_number}
   Ngày GD: ${row.transaction_date}
   Số tiền: ${row.amount_in} VND
-  Người dùng: ${row.code}
+  Người dùng: ${row.code} 
   Số TK: ${row.sub_account}
   Web: ${shop}`
       : `#${idx + 1}
@@ -61,5 +62,7 @@ const statusMessages = {
   Số tiền: ${row.amount} VNĐ
   Serial: ${row.serial}
   Nhà mạng: ${row.telco}
+  ${row.request_id ? `Người dùng|mã hash: ${row.request_id}` : ""}
   Web: ${shop}`;
   }
+  
