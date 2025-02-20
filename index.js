@@ -5,6 +5,8 @@ const { setupBotOnCommand } = require('./cmd/bot_on');
 const { setupRecallCommand } = require('./cmd/recall');
 const { setupAddKhoCloudCommand } = require('./cmd/add_khocloud'); // Thêm lệnh mới
 const { setupBanCommand } = require('./cmd/ban'); // Thêm dòng này
+const setupDoneCommand = require('./cmd/done');
+
 
 
 
@@ -20,6 +22,7 @@ setupBotOnCommand(bot, checkForUpdates);
 setupRecallCommand(bot, fetchData);
 setupAddKhoCloudCommand(bot); // Đăng ký lệnh add
 setupBanCommand(bot);
+setupDoneCommand(bot);
 // Khởi động bot
 bot.launch();
 
