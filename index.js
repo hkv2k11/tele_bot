@@ -19,7 +19,5 @@ setupAddKhoCloudCommand(bot); // Đăng ký lệnh add
 // Khởi động bot
 bot.launch();
 
-// Thiết lập kiểm tra định kỳ
-setInterval(() => checkForUpdates(bot, CHAT_ID), 3000);
 
 module.exports = { bot };
