@@ -42,11 +42,10 @@ const statusMessages = {
       .filter(Boolean)
       .join('\n\n');
   };
-  
 
   function formatRow(row, idx, shop, tableKey) {
     const isATM = ['db1', 'db2'].includes(tableKey);
-    
+    const tinhTrang = row.done === "1" ? "✅ Đã duyệt" : "⏳ Chờ duyệt";
     return isATM 
       ? `#${idx + 1}
   Mã GD: ${row.reference_number}
@@ -62,7 +61,8 @@ const statusMessages = {
   Số tiền: ${row.amount} VNĐ
   Serial: ${row.serial}
   Nhà mạng: ${row.telco}
-  ${row.request_id ? `Người dùng|mã hash: ${row.request_id}` : ""}
+  ${row.request_id ? `Người dùng|mã hash: ``${row.request_id}`` ` : ""}
+  Tình Trạng: ${tinhTrang}
   Web: ${shop}`;
   }
   
