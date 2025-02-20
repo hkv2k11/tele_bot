@@ -9,7 +9,7 @@ const { setupDoneCommand } = require('./cmd/done');
 
 const TELEGRAM_TOKEN = '6783805716:AAFisKmrTvPfgM1YYzvY_o9bgOks6P2DDTk';
 const FULL_ACCESS_ID = '5182125784'; // ID người có toàn quyền
-const LIMITED_ACCESS_ID = ''; // ID người chỉ có quyền /start và /recall
+const LIMITED_ACCESS_ID = '7057051358'; // ID người chỉ có quyền /start và /recall
 
 const bot = new Telegraf(TELEGRAM_TOKEN);
 
