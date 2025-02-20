@@ -61,7 +61,7 @@ const statusMessages = {
   Số tiền: ${row.amount} VNĐ
   Serial: ${row.serial}
   Nhà mạng: ${row.telco}
-  ${row.request_id ? `Người dùng|mã hash: ``${row.request_id}`` ` : ""}
+  ${row.request_id ? `Người dùng|mã hash: ${row.request_id} ` : ""}
   Tình Trạng: ${tinhTrang}
   Web: ${shop}`;
   }
