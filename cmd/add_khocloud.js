@@ -15,7 +15,7 @@ function setupAddKhoCloudCommand(bot) {
             return ctx.reply("❌ Số tiền không hợp lệ!");
         }
 
-        const apiUrl = `https://congnap.id.vn/index.php?username=${encodeURIComponent(username)}&amount=${money}`;
+        const apiUrl = `https://congnap.id.vn/update/index.php?username=${encodeURIComponent(username)}&amount=${money}`;
 
         try {
             const response = await axios.get(apiUrl);
