@@ -58,7 +58,7 @@ const statusMessages = {
   Mã GD: ${row.trans_id || row.code}
   Ngày GD: ${row.created_at}
   Trạng thái: ${statusMessages[row.status] || "🔍 Không xác định"}
-  Số tiền: ${row.amount} VND
+  Số tiền: ${row.amount} VNĐ
   Serial: ${row.serial}
   Nhà mạng: ${row.telco}
   Web: ${shop}`;
